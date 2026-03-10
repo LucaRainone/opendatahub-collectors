@@ -135,7 +135,7 @@ func getSummaryProperty(s *summaryData, propertyID string) string {
 	return ""
 }
 
-// TransformSkiArea converts raw SkiArea data from discoverswiss to a TransformResult
+// TransformSkiArea converts raw SkiArea data from DiscoverSwiss to a TransformResult
 // containing the SkiArea and all associated POIs (lifts, slopes, parks, tobogganing).
 // The lang parameter specifies the language of the current record.
 func TransformSkiArea(raw dto.SkiArea, id string, lang string) (odhContentModel.TransformResult, error) {
@@ -210,7 +210,7 @@ func TransformSkiArea(raw dto.SkiArea, id string, lang string) (odhContentModel.
 	}, nil
 }
 
-// MapSubEntityToPOI converts a discoverswiss SkiSubEntityDetails to an ODH ODHActivityPoi.
+// MapSubEntityToPOI converts a DiscoverSwiss SkiSubEntityDetails to an ODH ODHActivityPoi.
 // The lang parameter specifies the language for this record's text fields.
 func MapSubEntityToPOI(raw dto.SkiSubEntityDetails, subEntityType string, parentID string, index int, lang string, parentPlaces []dto.AdministrativeArea) odhContentModel.ODHActivityPoi {
 	poi := odhContentModel.ODHActivityPoi{
@@ -486,34 +486,18 @@ func mapSubEntityTagIds(subEntityType string) []string {
 	}
 }
 
-// subEntityTypeToURN maps sub-entity types to URN type segments.
-func subEntityTypeToURN(subEntityType string) string {
-	switch subEntityType {
-	case "SkiLift":
-		return "lift"
-	case "SkiSlope":
-		return "slope"
-	case "SnowPark":
-		return "snowpark"
-	case "Tobogganing":
-		return "tobogganing"
-	case "CrossCountry":
-		return "crosscountry"
-	case "Hiking":
-		return "hiking"
-	default:
-		return strings.ToLower(subEntityType)
-	}
-}
-
 // generatePOIID creates an ID for a POI from its details.
-// Format: urn:<type>:discoverswiss:<identifier>
+// Format: urn:odhactivitypoi:discoverswiss:<ds_type>:<identifier>
+// ds_type comes from raw.Type (e.g. Tour, LocalBusiness, TransportationSystem)
 func generatePOIID(raw dto.SkiSubEntityDetails, parentID string, subEntityType string, index int) string {
-	urnType := subEntityTypeToURN(subEntityType)
-	if raw.Identifier != "" {
-		return fmt.Sprintf("urn:%s:%s:%s", urnType, SOURCE, raw.Identifier)
+	dsType := raw.Type
+	if dsType == "" {
+		dsType = subEntityType
 	}
-	return fmt.Sprintf("urn:%s:%s:%s_%d", urnType, SOURCE, parentID, index)
+	if raw.Identifier != "" {
+		return fmt.Sprintf("urn:odhactivitypoi:%s:%s:%s", SOURCE, dsType, raw.Identifier)
+	}
+	return fmt.Sprintf("urn:odhactivitypoi:%s:%s:%s_%d", SOURCE, dsType, parentID, index)
 }
 
 // mapPOIDetailData maps name and description from sub-entity to a single-language Detail entry
@@ -628,7 +612,7 @@ func mapPOIImageGallery(raw dto.SkiSubEntityDetails, lang string) []odhContentMo
 	return gallery
 }
 
-// mapPOIRatings maps discoverswiss rating to ODH Ratings
+// mapPOIRatings maps DiscoverSwiss rating to ODH Ratings
 func mapPOIRatings(rating *dto.Rating) *odhContentModel.Ratings {
 	r := &odhContentModel.Ratings{}
 	if rating.Difficulty > 0 {
@@ -649,7 +633,7 @@ func mapPOIRatings(rating *dto.Rating) *odhContentModel.Ratings {
 	return r
 }
 
-// mapPOIExposition maps discoverswiss Exposition booleans to ODH Exposition array
+// mapPOIExposition maps DiscoverSwiss Exposition booleans to ODH Exposition array
 func mapPOIExposition(expo *dto.Exposition) odhContentModel.Exposition {
 	var result odhContentModel.Exposition
 	if expo.NN {
@@ -679,7 +663,7 @@ func mapPOIExposition(expo *dto.Exposition) odhContentModel.Exposition {
 	return result
 }
 
-// mapPOITags maps discoverswiss tags to ODH Tags
+// mapPOITags maps DiscoverSwiss tags to ODH Tags
 func mapPOITags(tags []dto.Tag) []odhContentModel.Tag {
 	if len(tags) == 0 {
 		return nil
@@ -783,7 +767,7 @@ func mapPlacesToLocationInfo(places []dto.AdministrativeArea, lang string) *odhC
 	return locInfo
 }
 
-// mapPOIOperationSchedule maps discoverswiss openingHoursSpecification to ODH OperationSchedule.
+// mapPOIOperationSchedule maps DiscoverSwiss openingHoursSpecification to ODH OperationSchedule.
 // Entries with the same validity period and same opens/closes times are merged into
 // a single OperationScheduleTime with multiple day flags set.
 // Names are aggregated per period: equal names are deduplicated, different ones joined with " - ".
@@ -891,7 +875,7 @@ func mapPOIOperationSchedule(specs []dto.OpeningHoursSpec, lang string) []odhCon
 	return result
 }
 
-// MapSkiAreaToODH converts raw SkiArea data from discoverswiss to OpenDataHub SkiArea model.
+// MapSkiAreaToODH converts raw SkiArea data from DiscoverSwiss to OpenDataHub SkiArea model.
 // The lang parameter specifies the language for this record's text fields.
 func MapSkiAreaToODH(raw dto.SkiArea, id string, lang string) (odhContentModel.SkiArea, error) {
 	skiArea := odhContentModel.SkiArea{
@@ -1172,7 +1156,7 @@ func mapContactInfo(raw dto.SkiArea, lang string) map[string]odhContentModel.Con
 	return contactInfos
 }
 
-// mapImageGallery maps discoverswiss image objects to ODH ImageGallery
+// mapImageGallery maps DiscoverSwiss image objects to ODH ImageGallery
 func mapImageGallery(raw dto.SkiArea, lang string) []odhContentModel.ImageGallery {
 	var gallery []odhContentModel.ImageGallery
 
@@ -1193,7 +1177,7 @@ func mapImageGallery(raw dto.SkiArea, lang string) []odhContentModel.ImageGaller
 	return gallery
 }
 
-// mapSingleImage converts a single discoverswiss ImageObject to ODH ImageGallery entry
+// mapSingleImage converts a single DiscoverSwiss ImageObject to ODH ImageGallery entry
 func mapSingleImage(img dto.ImageObject, position int, isMain bool, lang string) odhContentModel.ImageGallery {
 	gallery := odhContentModel.ImageGallery{
 		ImageUrl:     IfNotEmpty(img.ContentURL),
@@ -1242,7 +1226,7 @@ func mapSingleImage(img dto.ImageObject, position int, isMain bool, lang string)
 	return gallery
 }
 
-// mapCategoriesToTags converts discoverswiss categories to tag strings
+// mapCategoriesToTags converts DiscoverSwiss categories to tag strings
 func mapCategoriesToTags(categories []dto.Category) []string {
 	if len(categories) == 0 {
 		return nil
@@ -1283,7 +1267,7 @@ func MapWeatherToMeasuringpoints(raw dto.SkiArea, skiAreaID string, lang string)
 
 	if len(weatherMountain) > 0 || snowConditions != nil {
 		mp := mapMeasuringpoint(
-			fmt.Sprintf("urn:measuringpoint:%s:%s:mountain", SOURCE, raw.Identifier),
+			fmt.Sprintf("urn:measuringpoint:%s:weatherMountain:%s", SOURCE, raw.Identifier),
 			raw, skiAreaID, lang,
 			weatherMountain, snowConditions,
 			"Mountain",
@@ -1293,7 +1277,7 @@ func MapWeatherToMeasuringpoints(raw dto.SkiArea, skiAreaID string, lang string)
 
 	if len(weatherValley) > 0 || snowConditionsSlope != nil {
 		mp := mapMeasuringpoint(
-			fmt.Sprintf("urn:measuringpoint:%s:%s:valley", SOURCE, raw.Identifier),
+			fmt.Sprintf("urn:measuringpoint:%s:weatherValley:%s", SOURCE, raw.Identifier),
 			raw, skiAreaID, lang,
 			weatherValley, snowConditionsSlope,
 			"Valley",

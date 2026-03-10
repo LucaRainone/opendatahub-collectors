@@ -109,7 +109,7 @@ type LocationInfo struct {
 	DistrictInfo     *DistrictInfo     `json:"DistrictInfo,omitempty"`
 }
 
-// RelatedContent corresponds to the C# RelatedContent class.
+// RelatedContent corresponds to the RelatedContent class.
 type RelatedContent struct {
 	ID   *string `json:"Id,omitempty"`
 	Type *string `json:"Type,omitempty"`
@@ -149,7 +149,7 @@ type OperationSchedule struct {
 	OperationScheduleTime []OperationScheduleTime `json:"OperationScheduleTime,omitempty"`
 }
 
-// Generic corresponds to the C# Generic class.
+// Generic corresponds to the Generic class.
 // It is intended to be embedded (inlined) in other structs.
 type Generic struct {
 	ID          *string      `json:"Id,omitempty" hash:"ignore"`

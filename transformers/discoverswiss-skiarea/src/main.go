@@ -32,7 +32,7 @@ const (
 )
 
 func generateID(raw dto.SkiArea) string {
-	return fmt.Sprintf("%s:%s", SKIAREA_ID_PREFIX, raw.Identifier)
+	return fmt.Sprintf("%s:%s:%s", SKIAREA_ID_PREFIX, raw.Type, raw.Identifier)
 }
 
 var env struct {

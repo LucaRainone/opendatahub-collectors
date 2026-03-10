@@ -6,7 +6,7 @@ package dto
 
 import "encoding/json"
 
-// SkiArea represents the raw data structure from discoverswiss API
+// SkiArea represents the raw data structure from DiscoverSwiss API
 type SkiArea struct {
 	ID                        string               `json:"@id"`
 	Identifier                string               `json:"identifier"`
@@ -73,7 +73,7 @@ type SkiSubEntity struct {
 }
 
 // SkiSubEntityDetails represents the details of a ski sub-entity (slope, lift, park, toboggan)
-// These map to discoverswiss Tour/SkiSlope fields
+// These map to DiscoverSwiss Tour/SkiSlope fields
 type SkiSubEntityDetails struct {
 	ID                        string               `json:"@id,omitempty"`
 	Identifier                string               `json:"identifier,omitempty"`
