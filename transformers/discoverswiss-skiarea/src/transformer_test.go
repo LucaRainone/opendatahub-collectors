@@ -94,12 +94,6 @@ func TestMapSkiAreaToODH(t *testing.T) {
 	assert.Contains(t, dsMapping, "type", "Mapping should contain 'type'")
 	assert.Contains(t, dsMapping, "autoTranslatedData", "Mapping should contain 'autoTranslatedData'")
 
-	jsonResult, err := json.MarshalIndent(skiArea, "", "  ")
-	require.NoError(t, err, "Failed to marshal result")
-
-	errFile := os.WriteFile("../test/data/skiarea-full-transformed.json", jsonResult, 0644)
-	require.NoError(t, errFile, "Failed to write result")
-	t.Logf("Transformed SkiArea:\n%s", string(jsonResult))
 }
 
 func TestTransformSkiArea(t *testing.T) {
@@ -139,12 +133,6 @@ func TestTransformSkiArea(t *testing.T) {
 		t.Logf("POI[%d]: ID=%s Type=%s", i, *poi.ID, *poi.Type)
 	}
 
-	jsonResult, err := json.MarshalIndent(result, "", "  ")
-	require.NoError(t, err, "Failed to marshal result")
-
-	errFile := os.WriteFile("../test/data/skiarea-full-result.json", jsonResult, 0644)
-	require.NoError(t, errFile, "Failed to write full result")
-	t.Logf("Full TransformResult:\n%s", string(jsonResult))
 }
 
 func TestMapSubEntityToPOI(t *testing.T) {
