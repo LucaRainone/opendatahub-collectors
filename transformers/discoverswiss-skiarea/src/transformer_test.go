@@ -15,7 +15,7 @@ import (
 )
 
 func TestMapSkiAreaToODH(t *testing.T) {
-	data, err := os.ReadFile("../test/data/example1.json")
+	data, err := os.ReadFile("../test/data/skiarea-full.json")
 	require.NoError(t, err, "Failed to read example1.json")
 
 	var raw dto.SkiArea
@@ -97,13 +97,13 @@ func TestMapSkiAreaToODH(t *testing.T) {
 	jsonResult, err := json.MarshalIndent(skiArea, "", "  ")
 	require.NoError(t, err, "Failed to marshal result")
 
-	errFile := os.WriteFile("../test/data/example1_transformed.json", jsonResult, 0644)
+	errFile := os.WriteFile("../test/data/skiarea-full-transformed.json", jsonResult, 0644)
 	require.NoError(t, errFile, "Failed to write result")
 	t.Logf("Transformed SkiArea:\n%s", string(jsonResult))
 }
 
 func TestTransformSkiArea(t *testing.T) {
-	data, err := os.ReadFile("../test/data/example1.json")
+	data, err := os.ReadFile("../test/data/skiarea-full.json")
 	require.NoError(t, err, "Failed to read example1.json")
 
 	var raw dto.SkiArea
@@ -142,7 +142,7 @@ func TestTransformSkiArea(t *testing.T) {
 	jsonResult, err := json.MarshalIndent(result, "", "  ")
 	require.NoError(t, err, "Failed to marshal result")
 
-	errFile := os.WriteFile("../test/data/example1_full_result.json", jsonResult, 0644)
+	errFile := os.WriteFile("../test/data/skiarea-full-result.json", jsonResult, 0644)
 	require.NoError(t, errFile, "Failed to write full result")
 	t.Logf("Full TransformResult:\n%s", string(jsonResult))
 }
@@ -296,7 +296,7 @@ func TestWeatherCodeMapping(t *testing.T) {
 }
 
 func TestMeasuringpointWeatherCode(t *testing.T) {
-	data, err := os.ReadFile("../test/data/example1.json")
+	data, err := os.ReadFile("../test/data/skiarea-full.json")
 	require.NoError(t, err)
 
 	var raw dto.SkiArea
@@ -324,12 +324,12 @@ func TestMeasuringpointWeatherCode(t *testing.T) {
 }
 
 func TestGenerateID(t *testing.T) {
-	data, err := os.ReadFile("../test/data/example1.json")
-	require.NoError(t, err, "Failed to read example1.json")
+	data, err := os.ReadFile("../test/data/skiarea-full.json")
+	require.NoError(t, err, "Failed to read skiarea-full.json\"")
 
 	var raw dto.SkiArea
 	err = json.Unmarshal(data, &raw)
-	require.NoError(t, err, "Failed to unmarshal example1.json")
+	require.NoError(t, err, "Failed to unmarshal skiarea-full.json\"")
 
 	id := generateID(raw)
 

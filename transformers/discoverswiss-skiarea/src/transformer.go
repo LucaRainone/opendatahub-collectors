@@ -87,6 +87,12 @@ func mapLicense(dsLicense string) (license string, closedData bool) {
 	}
 }
 
+// cleanType strips the "schema.org/" prefix from DiscoverSwiss type strings.
+// e.g. "schema.org/TransportationSystem" → "TransportationSystem"
+func cleanType(t string) string {
+	return strings.TrimPrefix(t, "schema.org/")
+}
+
 func StringPtr(s string) *string {
 	return &s
 }
@@ -542,7 +548,7 @@ func mapSubEntityTagIds(subEntityType string) []string {
 // Format: urn:odhactivitypoi:discoverswiss:<ds_type>:<identifier>
 // ds_type comes from raw.Type (e.g. Tour, LocalBusiness, TransportationSystem)
 func generatePOIID(raw dto.SkiSubEntityDetails, parentID string, subEntityType string, index int) string {
-	dsType := raw.Type
+	dsType := cleanType(raw.Type)
 	if dsType == "" {
 		dsType = subEntityType
 	}

@@ -27,8 +27,8 @@ func loadTestSkiArea(t *testing.T, path string) dto.SkiArea {
 }
 
 func TestMergeSkiArea(t *testing.T) {
-	rawDE := loadTestSkiArea(t, "../test/data/example_de.json")
-	rawIT := loadTestSkiArea(t, "../test/data/example_it.json")
+	rawDE := loadTestSkiArea(t, "../test/data/skiarea-merge-de.json")
+	rawIT := loadTestSkiArea(t, "../test/data/skiarea-merge-it.json")
 
 	id := generateID(rawDE)
 
@@ -81,8 +81,8 @@ func TestMergeSkiArea(t *testing.T) {
 }
 
 func TestMergePOI(t *testing.T) {
-	rawDE := loadTestSkiArea(t, "../test/data/example_de.json")
-	rawIT := loadTestSkiArea(t, "../test/data/example_it.json")
+	rawDE := loadTestSkiArea(t, "../test/data/skiarea-merge-de.json")
+	rawIT := loadTestSkiArea(t, "../test/data/skiarea-merge-it.json")
 
 	id := generateID(rawDE)
 

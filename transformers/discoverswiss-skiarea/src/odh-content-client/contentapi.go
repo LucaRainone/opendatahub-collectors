@@ -240,6 +240,14 @@ func (c *ContentClient) doRequest(ctx context.Context, method string, reqURL str
 
 	// Handle non-2xx status codes (HTTP-level errors)
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		// 404 means the resource does not exist (same as "Data to update Not Found")
+		if resp.StatusCode == 404 {
+			resp.Body.Close()
+			clientSpan.SetAttributes(attribute.Int("http.status_code", resp.StatusCode))
+			clientSpan.SetStatus(codes.Error, "HTTP 404 not found")
+			return nil, ErrNoDataToUpdate
+		}
+
 		// Read the body for error message
 		bodyBytes, readErr := io.ReadAll(resp.Body)
 		resp.Body.Close()
