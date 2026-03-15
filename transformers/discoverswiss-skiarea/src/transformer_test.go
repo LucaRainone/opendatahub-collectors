@@ -309,6 +309,27 @@ func TestWeatherCodeMapping(t *testing.T) {
 	assert.Nil(t, mapWeatherCode(0))
 }
 
+func TestMeasuringpointNoGpsFromSkiArea(t *testing.T) {
+	data, err := os.ReadFile("../test/data/skiarea-full.json")
+	require.NoError(t, err)
+
+	var raw dto.SkiArea
+	err = json.Unmarshal(data, &raw)
+	require.NoError(t, err)
+	require.NotNil(t, raw.Geo, "Test fixture should have GPS on ski area")
+
+	id := generateID(raw)
+	lang := raw.ApiCrawlerLang
+
+	result, err := TransformSkiArea(raw, id, lang)
+	require.NoError(t, err)
+	require.NotEmpty(t, result.Measuringpoints)
+
+	for _, mp := range result.Measuringpoints {
+		assert.Empty(t, mp.GpsInfo, "Measuringpoint should not have GPS derived from ski area location")
+	}
+}
+
 func TestMeasuringpointWeatherCode(t *testing.T) {
 	data, err := os.ReadFile("../test/data/skiarea-full.json")
 	require.NoError(t, err)

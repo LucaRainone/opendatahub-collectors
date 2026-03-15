@@ -1412,20 +1412,8 @@ func mapMeasuringpoint(
 		}
 	}
 
-	// GPS from ski area
-	if raw.Geo != nil {
-		gpsInfo := odhContentModel.GpsInfo{
-			Latitude:  Float64Ptr(raw.Geo.Latitude),
-			Longitude: Float64Ptr(raw.Geo.Longitude),
-			Gpstype:   StringPtr("position"),
-			Default:   true,
-		}
-		if raw.Geo.Elevation > 0 {
-			gpsInfo.Altitude = Float64Ptr(raw.Geo.Elevation)
-			gpsInfo.AltitudeUnitofMeasure = StringPtr("m")
-		}
-		mp.GpsInfo = []odhContentModel.GpsInfo{gpsInfo}
-	}
+	// GPS: not set — weather data has no own coordinates, and copying from ski area location
+	// would be misleading. Only set GPS if the source data provides weather-specific coordinates.
 
 	// LocationInfo from ski area
 	mp.LocationInfo = mapPlacesToLocationInfo(raw.ContainedInPlace, lang)
