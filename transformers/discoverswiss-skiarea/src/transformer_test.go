@@ -256,6 +256,32 @@ func TestMapPOIOperationSchedule(t *testing.T) {
 	}
 }
 
+func TestMapSubEntityTagIds(t *testing.T) {
+	tests := []struct {
+		name           string
+		subEntityType  string
+		additionalType string
+		expected       []string
+	}{
+		{"SkiLift generic", "SkiLift", "", []string{"lifts"}},
+		{"SkiLift ChairLift", "SkiLift", "ChairLift", []string{"lifts", "chairlift"}},
+		{"SkiLift CableCar", "SkiLift", "CableCar", []string{"lifts", "ropeway"}},
+		{"SkiSlope", "SkiSlope", "SkiSlope", []string{"winter", "slope", "slopes", "marked ski paths slopes"}},
+		{"SnowPark", "SnowPark", "SnowPark", []string{"winter", "snowpark", "snow parks"}},
+		{"Tobogganing", "Tobogganing", "TobogganRun", []string{"winter", "tobbogan run", "sledging trail"}},
+		{"CrossCountry", "CrossCountry", "CrossCountry", []string{"winter", "crosscountry skitrack", "crosscountry skiing"}},
+		{"Hiking generic", "Hiking", "HikingTrail", []string{"hiking", "winter", "winter hiking"}},
+		{"Hiking snowshoe", "Hiking", "SnowshoeTrail", []string{"hiking", "winter", "snowshoe hikes"}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := mapSubEntityTagIds(tt.subEntityType, tt.additionalType)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
 func TestMapPOIExposition(t *testing.T) {
 	expo := &dto.Exposition{
 		NN: true,

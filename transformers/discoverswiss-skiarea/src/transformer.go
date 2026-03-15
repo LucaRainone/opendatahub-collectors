@@ -440,7 +440,7 @@ func MapSubEntityToPOI(raw dto.SkiSubEntityDetails, subEntityType string, parent
 	poi.GpsTrack = mapGpsTracks(raw.Link)
 
 	// Map TagIds for API filtering (tagfilter parameter)
-	poi.TagIds = mapSubEntityTagIds(subEntityType)
+	poi.TagIds = mapSubEntityTagIds(subEntityType, raw.AdditionalType)
 
 	// Link to parent ski area
 	poi.AreaId = []string{parentID}
@@ -523,24 +523,41 @@ func mapGpsTracks(links []dto.Link) []odhContentModel.GpsTrack {
 	return tracks
 }
 
-// mapSubEntityTagIds returns the TagIds for a given sub-entity type.
+// mapSubEntityTagIds returns the TagIds for a given sub-entity type and additionalType.
 // These are used by the ODH API tagfilter parameter for filtering POIs.
-func mapSubEntityTagIds(subEntityType string) []string {
+func mapSubEntityTagIds(subEntityType string, additionalType string) []string {
 	switch subEntityType {
 	case "SkiLift":
-		return []string{"activity", "lifts", "winter"}
+		tags := []string{"lifts"}
+		switch additionalType {
+		case "ChairLift":
+			tags = append(tags, "chairlift")
+		case "CableCar":
+			tags = append(tags, "ropeway")
+		}
+		return tags
 	case "SkiSlope":
-		return []string{"activity", "slopes", "slope", "alpine skiing", "winter"}
+		return []string{"winter", "slope", "slopes", "marked ski paths slopes"}
 	case "SnowPark":
-		return []string{"activity", "slopes", "winter"}
+		return []string{"winter", "snowpark", "snow parks"}
 	case "Tobogganing":
-		return []string{"activity", "Sledging", "winter"}
+		return []string{"winter", "tobbogan run", "sledging trail"}
 	case "CrossCountry":
-		return []string{"activity", "cross-country skiing", "winter"}
+		return []string{"winter", "crosscountry skitrack", "crosscountry skiing"}
 	case "Hiking":
-		return []string{"activity", "hiking", "winter"}
+		tags := []string{"hiking"}
+		switch additionalType {
+		case "SnowshoeTrail":
+			tags = append(tags, "winter", "snowshoe hikes")
+		case "HikingTrail":
+			// could be winter or summer, add winter by default since it's in a ski area
+			tags = append(tags, "winter", "winter hiking")
+		default:
+			tags = append(tags, "winter", "winter hiking")
+		}
+		return tags
 	default:
-		return []string{"activity", "winter"}
+		return []string{"winter"}
 	}
 }
 
