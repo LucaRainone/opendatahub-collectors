@@ -193,6 +193,20 @@ func getSummaryProperty(s *summaryData, propertyID string) string {
 	return ""
 }
 
+// isLanguageAvailable checks if lang is listed in availableDataLanguage.
+// If availableDataLanguage is empty/nil, the language is considered available.
+func isLanguageAvailable(availableDataLanguage []string, lang string) bool {
+	if len(availableDataLanguage) == 0 {
+		return true
+	}
+	for _, l := range availableDataLanguage {
+		if l == lang {
+			return true
+		}
+	}
+	return false
+}
+
 // TransformSkiArea converts raw SkiArea data from DiscoverSwiss to a TransformResult
 // containing the SkiArea and all associated POIs (lifts, slopes, parks, tobogganing).
 // The lang parameter specifies the language of the current record.
@@ -204,58 +218,30 @@ func TransformSkiArea(raw dto.SkiArea, id string, lang string) (odhContentModel.
 
 	var pois []odhContentModel.ODHActivityPoi
 
-	// Extract POIs from hasSkiLift
-	for i, entity := range raw.HasSkiLift {
-		if entity.Details == nil {
-			continue
-		}
-		poi := MapSubEntityToPOI(*entity.Details, "SkiLift", id, i, lang, raw.ContainedInPlace)
-		pois = append(pois, poi)
+	subEntityGroups := []struct {
+		entities      []dto.SkiSubEntity
+		subEntityType string
+	}{
+		{raw.HasSkiLift, "SkiLift"},
+		{raw.HasSkiSlope, "SkiSlope"},
+		{raw.HasSnowPark, "SnowPark"},
+		{raw.HasTobogganing, "Tobogganing"},
+		{raw.HasCrossCountry, "CrossCountry"},
+		{raw.HasHiking, "Hiking"},
 	}
 
-	// Extract POIs from hasSkiSlope
-	for i, entity := range raw.HasSkiSlope {
-		if entity.Details == nil {
-			continue
+	for _, group := range subEntityGroups {
+		for i, entity := range group.entities {
+			if entity.Details == nil {
+				continue
+			}
+			// Skip sub-entity if lang is not in its availableDataLanguage
+			if !isLanguageAvailable(entity.Details.AvailableDataLanguage, lang) {
+				continue
+			}
+			poi := MapSubEntityToPOI(*entity.Details, group.subEntityType, id, i, lang, raw.ContainedInPlace)
+			pois = append(pois, poi)
 		}
-		poi := MapSubEntityToPOI(*entity.Details, "SkiSlope", id, i, lang, raw.ContainedInPlace)
-		pois = append(pois, poi)
-	}
-
-	// Extract POIs from hasSnowPark
-	for i, entity := range raw.HasSnowPark {
-		if entity.Details == nil {
-			continue
-		}
-		poi := MapSubEntityToPOI(*entity.Details, "SnowPark", id, i, lang, raw.ContainedInPlace)
-		pois = append(pois, poi)
-	}
-
-	// Extract POIs from hasTobogganing
-	for i, entity := range raw.HasTobogganing {
-		if entity.Details == nil {
-			continue
-		}
-		poi := MapSubEntityToPOI(*entity.Details, "Tobogganing", id, i, lang, raw.ContainedInPlace)
-		pois = append(pois, poi)
-	}
-
-	// Extract POIs from hasCrossCountry
-	for i, entity := range raw.HasCrossCountry {
-		if entity.Details == nil {
-			continue
-		}
-		poi := MapSubEntityToPOI(*entity.Details, "CrossCountry", id, i, lang, raw.ContainedInPlace)
-		pois = append(pois, poi)
-	}
-
-	// Extract POIs from hasHiking
-	for i, entity := range raw.HasHiking {
-		if entity.Details == nil {
-			continue
-		}
-		poi := MapSubEntityToPOI(*entity.Details, "Hiking", id, i, lang, raw.ContainedInPlace)
-		pois = append(pois, poi)
 	}
 
 	// Extract weather measuring points

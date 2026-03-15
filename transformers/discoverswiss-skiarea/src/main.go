@@ -314,6 +314,12 @@ func processRaw(ctx context.Context, raw dto.SkiArea, sourceTime time.Time) erro
 	id := generateID(raw)
 	lang := raw.ApiCrawlerLang
 
+	// Skip if the current language is not in availableDataLanguage
+	if !isLanguageAvailable(raw.AvailableDataLanguage, lang) {
+		slog.Info("Skipping: language not in availableDataLanguage", "id", id, "lang", lang, "available", raw.AvailableDataLanguage)
+		return nil
+	}
+
 	result, err := TransformSkiArea(raw, id, lang)
 	if err != nil {
 		return fmt.Errorf("transform ski area: %w", err)

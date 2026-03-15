@@ -358,6 +358,41 @@ func TestMeasuringpointWeatherCode(t *testing.T) {
 	}
 }
 
+func TestIsLanguageAvailable(t *testing.T) {
+	assert.True(t, isLanguageAvailable(nil, "de"), "nil list means available")
+	assert.True(t, isLanguageAvailable([]string{}, "de"), "empty list means available")
+	assert.True(t, isLanguageAvailable([]string{"de", "en", "it"}, "de"))
+	assert.False(t, isLanguageAvailable([]string{"de", "en"}, "fr"))
+}
+
+func TestTransformSkiAreaSkipsUnavailableLanguagePOIs(t *testing.T) {
+	details := dto.SkiSubEntityDetails{
+		Identifier:            "slope-de-only",
+		Type:                  "Tour",
+		Name:                  "German Only Slope",
+		AvailableDataLanguage: []string{"de"},
+	}
+
+	raw := dto.SkiArea{
+		Identifier:     "test_ski",
+		Type:           "SkiResort",
+		ApiCrawlerLang: "fr",
+		Name:           "Test Ski Area",
+		HasSkiSlope:    []dto.SkiSubEntity{{Details: &details}},
+	}
+
+	id := generateID(raw)
+	result, err := TransformSkiArea(raw, id, "fr")
+	require.NoError(t, err)
+	assert.Empty(t, result.POI, "POI with availableDataLanguage=[de] should be skipped for lang=fr")
+
+	// Same POI should be included for lang=de
+	raw.ApiCrawlerLang = "de"
+	result, err = TransformSkiArea(raw, id, "de")
+	require.NoError(t, err)
+	assert.Len(t, result.POI, 1, "POI should be included for lang=de")
+}
+
 func TestGenerateID(t *testing.T) {
 	data, err := os.ReadFile("../test/data/skiarea-full.json")
 	require.NoError(t, err, "Failed to read skiarea-full.json\"")
