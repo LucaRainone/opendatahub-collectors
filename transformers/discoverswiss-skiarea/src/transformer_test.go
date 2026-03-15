@@ -283,6 +283,46 @@ func TestMapPOIExposition(t *testing.T) {
 	assert.NotContains(t, result, "W")
 }
 
+func TestWeatherCodeMapping(t *testing.T) {
+	// Known icons
+	assert.Equal(t, "Sunny", *mapWeatherCode(1))
+	assert.Equal(t, "Mostly Cloudy w/ Snow", *mapWeatherCode(23))
+	assert.Equal(t, "Partly Sunny w/ Showers", *mapWeatherCode(14))
+	assert.Equal(t, "Clear", *mapWeatherCode(33))
+
+	// Unknown icon returns nil
+	assert.Nil(t, mapWeatherCode(999))
+	assert.Nil(t, mapWeatherCode(0))
+}
+
+func TestMeasuringpointWeatherCode(t *testing.T) {
+	data, err := os.ReadFile("../test/data/example1.json")
+	require.NoError(t, err)
+
+	var raw dto.SkiArea
+	err = json.Unmarshal(data, &raw)
+	require.NoError(t, err)
+
+	id := generateID(raw)
+	lang := raw.ApiCrawlerLang
+
+	result, err := TransformSkiArea(raw, id, lang)
+	require.NoError(t, err)
+	require.NotEmpty(t, result.Measuringpoints, "Should have measuringpoints")
+
+	for _, mp := range result.Measuringpoints {
+		for _, obs := range mp.WeatherObservation {
+			assert.NotNil(t, obs.IconID, "IconID should be set")
+			assert.NotNil(t, obs.WeatherCode, "WeatherCode should be set for known icons")
+			// WeatherCode should match the icon mapping
+			icon := obs.IconID
+			if icon != nil {
+				assert.NotEmpty(t, *obs.WeatherCode, "WeatherCode should not be empty for icon %s", *icon)
+			}
+		}
+	}
+}
+
 func TestGenerateID(t *testing.T) {
 	data, err := os.ReadFile("../test/data/example1.json")
 	require.NoError(t, err, "Failed to read example1.json")

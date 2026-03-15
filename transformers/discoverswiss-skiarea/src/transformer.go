@@ -15,6 +15,58 @@ import (
 	odhContentModel "opendatahub.com/tr-discoverswiss-skiarea/odh-content-model"
 )
 
+// weatherIconToCode maps DiscoverSwiss/AccuWeather icon numbers to weather description codes.
+var weatherIconToCode = map[int]string{
+	1:  "Sunny",
+	2:  "Mostly Sunny",
+	3:  "Partly Sunny",
+	4:  "Intermittent Clouds",
+	5:  "Hazy Sunshine",
+	6:  "Mostly Cloudy",
+	7:  "Cloudy",
+	8:  "Dreary (Overcast)",
+	11: "Fog",
+	12: "Showers",
+	13: "Mostly Cloudy w/ Showers",
+	14: "Partly Sunny w/ Showers",
+	15: "T-Storms",
+	16: "Mostly Cloudy w/ T-Storms",
+	17: "Partly Sunny w/ T-Storms",
+	18: "Rain",
+	19: "Flurries",
+	20: "Mostly Cloudy w/ Flurries",
+	21: "Partly Sunny w/ Flurries",
+	22: "Snow",
+	23: "Mostly Cloudy w/ Snow",
+	24: "Ice",
+	25: "Sleet",
+	26: "Freezing Rain",
+	29: "Rain and Snow",
+	30: "Hot",
+	31: "Cold",
+	32: "Windy",
+	33: "Clear",
+	34: "Mostly Clear",
+	35: "Partly Cloudy",
+	36: "Intermittent Clouds",
+	37: "Hazy Moonlight",
+	38: "Mostly Cloudy",
+	39: "Partly Cloudy w/ Showers",
+	40: "Mostly Cloudy w/ Showers",
+	41: "Partly Cloudy w/ T-Storms",
+	42: "Mostly Cloudy w/ T-Storms",
+	43: "Mostly Cloudy w/ Flurries",
+	44: "Mostly Cloudy w/ Snow",
+}
+
+// mapWeatherCode converts a DiscoverSwiss weather icon number to a weather code string.
+func mapWeatherCode(icon int) *string {
+	if code, ok := weatherIconToCode[icon]; ok {
+		return &code
+	}
+	return nil
+}
+
 // mapLicense maps DiscoverSwiss license strings to ODH license values.
 // ODH accepts: "CC0", "CC-BY", "Closed".
 func mapLicense(dsLicense string) (license string, closedData bool) {
@@ -1370,8 +1422,9 @@ func mapMeasuringpoint(
 	// Weather observations from forecast array
 	for _, w := range weather {
 		obs := odhContentModel.WeatherObservation{
-			Date:   IfNotEmpty(w.Date),
-			IconID: StringPtr(strconv.Itoa(w.Icon)),
+			Date:        IfNotEmpty(w.Date),
+			IconID:      StringPtr(strconv.Itoa(w.Icon)),
+			WeatherCode: mapWeatherCode(w.Icon),
 		}
 		mp.WeatherObservation = append(mp.WeatherObservation, obs)
 	}

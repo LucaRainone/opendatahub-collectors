@@ -8,6 +8,7 @@ package odhContentModel
 type WeatherObservation struct {
 	Id            *string           `json:"Id,omitempty"`
 	WeatherStatus map[string]string `json:"WeatherStatus,omitempty"`
+	WeatherCode   *string           `json:"WeatherCode,omitempty"`
 	IconID        *string           `json:"IconID,omitempty"`
 	Date          *string           `json:"Date,omitempty"`
 }
